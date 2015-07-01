@@ -1,7 +1,9 @@
 path = require 'path-extra'
 glob = require 'glob'
-{_, React, ReactBootstrap} = window
-{TabbedArea, TabPane, DropdownButton} = ReactBootstrap
+{_, $, $$, ROOT, notify, layout, React, ReactBootstrap} = window
+{Grid, Col, Row, TabbedArea, TabPane, Navbar, Nav, NavItem, MenuItem, DropdownButton} = ReactBootstrap
+
+rankName = ['', '元帥', '大将', '中将', '少将', '大佐', '中佐', '新米中佐', '少佐', '中堅少佐', '新米少佐']
 
 # Get components
 components = glob.sync(path.join(ROOT, 'views', 'components', '*'))
@@ -41,12 +43,18 @@ plugins = plugins.filter (plugin) ->
 plugins = _.sortBy(plugins, 'priority')
 tabbedPlugins = plugins.filter (plugin) ->
   !plugin.handleClick?
+indivPlugins = plugins.filter (plugin) ->
+  plugin.handleClick?
 settings = require path.join(ROOT, 'views', 'components', 'settings')
 
 lockedTab = false
 ControlledTabArea = React.createClass
   getInitialState: ->
-    key: 0
+    level: 0
+    nickname: null
+    rank: 0
+    key: [0, 0]
+    xs: if layout == 'horizonal' then 4 else 4
   handleSelect: (key) ->
     @setState {key} if key isnt @state.key
   handleCtrlOrCmdTabKeyDown: ->

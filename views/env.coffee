@@ -118,7 +118,7 @@ window.webviewWidth = config.get 'poi.webview.width', -1
 
 # Custom theme
 window.theme = config.get 'poi.theme', '__default__'
-window.isDarkTheme = theme.indexOf('dark') != -1 or theme == 'slate' or theme == 'superhero'
+window.isDarkTheme = theme.indexOf('dark') != -1 or theme.indexOf('black') != -1 or theme == 'slate' or theme == 'superhero'
 if theme == '__default__'
   $('#bootstrap-css')?.setAttribute 'href', "file://#{ROOT}/components/bootstrap/dist/css/bootstrap.css"
 else

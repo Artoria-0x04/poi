@@ -15,8 +15,9 @@ adjustSize = ->
     url = null
   # return if webview.isLoading()
   [].forEach.call $$('poi-app div.poi-app-tabpane'), (e) ->
-    e.style.height = "#{window.innerHeight - 40}px"
+    e.style.height = "#{window.innerHeight - 107}px"
     e.style.overflowY = "scroll"
+    e.style.overflowX = "hidden"
   # Fix poi-info when game size 0x0
   if webviewWidth > -0.00001 and webviewWidth < 0.00001
     $('kan-game')?.style?.display = 'none'

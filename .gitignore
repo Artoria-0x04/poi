@@ -36,3 +36,7 @@ node_modules
 /assets/themes
 
 /cache
+
+# Mac Filesystem
+.DS_Store
+.settings/

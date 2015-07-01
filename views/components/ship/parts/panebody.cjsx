@@ -11,25 +11,25 @@ getMaterialStyle = (percent) ->
   else if percent <= 75
     'warning'
   else if percent < 100
-    'info'
+    'primary'
   else
     'success'
 
 getCondStyle = (cond) ->
   if window.isDarkTheme
     if cond > 49
-      color: '#FFFF00'
+      '#ffd600'
     else if cond < 20
-      color: '#DD514C'
+      '#DD514C'
     else if cond < 30
-      color: '#F37B1D'
+      '#F37B1D'
     else if cond < 40
-      color: '#FFC880'
+      '#FFC880'
     else
-      null
+      '#FFF'
   else
     if cond > 49
-      'text-shadow': '0 0 3px #FFFF00'
+      'text-shadow': '0 0 3px #ffd600'
     else if cond < 20
       'text-shadow': '0 0 3px #DD514C'
     else if cond < 30
@@ -37,7 +37,7 @@ getCondStyle = (cond) ->
     else if cond < 40
       'text-shadow': '0 0 3px #FFC880'
     else
-      null
+      '#FFF'
 
 getFontStyle = (theme)  ->
   if window.isDarkTheme then color: '#FFF' else color: '#000'
@@ -66,7 +66,7 @@ getHpStyle = (percent) ->
   else if percent <= 50
     'warning'
   else if percent <= 75
-    'info'
+    'primary'
   else
     'success'
 
@@ -201,26 +201,16 @@ TopAlert = React.createClass
     window.removeEventListener 'game.response', @handleResponse
     @interval = clearInterval @interval if @interval?
   render: ->
-    <Alert style={getFontStyle window.theme}>
-      <Grid>
-        <Col xs={2}>
-          总 Lv.{@messages[0]}
-        </Col>
-        <Col xs={2}>
-          均 Lv.{@messages[1]}
-        </Col>
-        <Col xs={2}>
-          制空：{@messages[2]}
-        </Col>
-        <Col xs={2}>
-          <OverlayTrigger placement='bottom' overlay={<Tooltip>[艦娘]{@messages[4]} + [装備]{@messages[5]} - [司令部]{@messages[6]}</Tooltip>}>
-            <span>索敌：{@messages[3]}</span>
-          </OverlayTrigger>
-        </Col>
-        <Col xs={4}>
-          回复：<span id={"deck-condition-countdown-#{@props.deckIndex}-#{@componentId}"}>{resolveTime @maxCountdown}</span>
-        </Col>
-      </Grid>
+    <Alert style={getFontStyle window.theme, display:"flex"}>
+      <span>&nbsp;总 Lv.{@messages[0]}&nbsp;</span>
+      <span>&nbsp;均 Lv.{@messages[1]}&nbsp;</span>
+      <span>&nbsp;制空:{@messages[2]}&nbsp;</span>
+      <span>
+        <OverlayTrigger placement='bottom' overlay={<Tooltip>[艦娘]{@messages[4]} + [装備]{@messages[5]} - [司令部]{@messages[6]}</Tooltip>}>
+          <span>&nbsp;索敌:{@messages[3]}&nbsp;</span>
+        </OverlayTrigger>
+      </span>
+      <span>&nbsp;回复:<span id={"deck-condition-countdown-#{@props.deckIndex}-#{@componentId}"}>{resolveTime @maxCountdown}</span>&nbsp;</span>
     </Alert>
 
 PaneBody = React.createClass
@@ -263,7 +253,7 @@ PaneBody = React.createClass
         messages={@props.messages}
         deckIndex={@props.deckIndex}
         deckName={@props.deckName} />
-      <Table>
+      <Table className="shipDetails">
         <tbody>
         {
           {$ships, $shipTypes, _ships} = window
@@ -273,34 +263,36 @@ PaneBody = React.createClass
             shipInfo = $ships[ship.api_ship_id]
             shipType = $shipTypes[shipInfo.api_stype].api_name
             [
-              <tr key={j * 2}>
-                <td width="20%">{shipInfo.api_name}</td>
-                <td width="22%">Lv. {ship.api_lv}</td>
-                <td width="25%" className="hp-progress">
+              <tr className="shipInfo1" key={j * 2}>
+                <td className="shipName" width="25%">
+                  <span className="condIndicator" style={display:"inline-block", height:"100%", width:4, verticalAlign:"middle", marginRight:4,  backgroundColor:getCondStyle ship.api_cond}></span>{shipInfo.api_name}</td>
+                <td className="shipLv" width="17%">Lv. {ship.api_lv}</td>
+                <td className='hpBar' width="25%" className="hp-progress">
+                  <span>{ship.api_nowhp} / {ship.api_maxhp}</span>
                   <ProgressBar bsStyle={getHpStyle ship.api_nowhp / ship.api_maxhp * 100}
                                now={ship.api_nowhp / ship.api_maxhp * 100}
-                               label={"#{ship.api_nowhp} / #{ship.api_maxhp}"} />
+                               label={""} />
                 </td>
                 <td width="33%">
                   <Slotitems data={ship.api_slot} onslot={ship.api_onslot} maxeq={ship.api_maxeq} />
                 </td>
               </tr>
-              <tr key={j * 2 + 1}>
-                <td>{shipType}</td>
-                <td>Next. {ship.api_exp[1]}</td>
+              <tr className="shipInfo2" key={j * 2 + 1}>
+                <td style={paddingLeft:14} className='shipType'>{shipType}</td>
+                <td className='shipExp'>Next. {ship.api_exp[1]}</td>
                 <td className="material-progress">
                   <Grid>
-                    <Col xs={6} style={paddingRight: 1}>
+                    <Col xs={6} style={paddingRight: 2}>
                       <ProgressBar bsStyle={getMaterialStyle ship.api_fuel / shipInfo.api_fuel_max * 100}
                                      now={ship.api_fuel / shipInfo.api_fuel_max * 100} />
                     </Col>
-                    <Col xs={6} style={paddingLeft: 1}>
+                    <Col xs={6} style={paddingLeft: 2}>
                       <ProgressBar bsStyle={getMaterialStyle ship.api_bull / shipInfo.api_bull_max * 100}
                                      now={ship.api_bull / shipInfo.api_bull_max * 100} />
                     </Col>
                   </Grid>
                 </td>
-                <td style={getCondStyle ship.api_cond}>Cond. {@state.cond[j]}</td>
+                <td className='shipCond' style={color:getCondStyle ship.api_cond}>Cond. {ship.api_cond}</td>
               </tr>
             ]
         }

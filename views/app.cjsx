@@ -3,7 +3,7 @@ path = require 'path-extra'
 glob = require 'glob'
 {showItemInFolder, openItem} = require 'shell'
 {ROOT, EXROOT, _, $, $$, React, ReactBootstrap} = window
-{Button, Alert, OverlayMixin, Modal, OverlayTrigger, Tooltip} = ReactBootstrap
+{Button, ButtonGroup, Alert, OverlayMixin, Modal, OverlayTrigger, Tooltip} = ReactBootstrap
 {config, proxy, remote, log, success, warn, error, toggleModal} = window
 
 # Main tabbed area
@@ -89,7 +89,7 @@ PoiControl = React.createClass
         false
     , 100
   render: ->
-    <div>
+    <ButtonGroup>
       <OverlayTrigger placement='left' overlay={<Tooltip>开发人员工具</Tooltip>}>
         <Button onClick={@handleOpenDevTools} onContextMenu={@handleOpenWebviewDevTools} bsSize='small'><FontAwesome name='gears' /></Button>
       </OverlayTrigger>
@@ -111,7 +111,7 @@ PoiControl = React.createClass
       <OverlayTrigger placement='left' overlay={<Tooltip>{if @state.muted then '关闭声音' else '打开声音'}</Tooltip>}>
         <Button onClick={@handleSetMuted} bsSize='small'><FontAwesome name={if @state.muted then 'volume-off' else 'volume-up'} /></Button>
       </OverlayTrigger>
-    </div>
+    </ButtonGroup>
 
 # Notification modal
 ModalTrigger = React.createClass
