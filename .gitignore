@@ -36,3 +36,11 @@ node_modules
 /assets/themes
 
 /cache
+
+# Mac Files
+
+*.DS_store
+
+# personal plugins
+
+/plugins/compactmain
