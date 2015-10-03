@@ -1,111 +1,177 @@
-*, body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-family: "Ubuntu", "Helvetica Neue", "Helvetica", "Arial", "Heiti SC", "WenQuanYi Micro Hei", "Microsoft YaHei", "Droid Sans Fallback", sans-serif;
+*,
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6
+{
+    font-family: 'Helvetica Neue', Helvetica, Arial, 'Noto Sans CJK SC Medium', 'Heiti SC', 'WenQuanYi Micro Hei', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Droid Sans Fallback', sans-serif;
 }
-::-webkit-scrollbar {
-  width: 0px;
+::-webkit-scrollbar
+{
+    width: 0;
 }
-body {
-  font-size: 13px;
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.42857143;
-  overflow: hidden;
+body
+{
+    font-size: 13px;
+    line-height: 1.42857143;
+
+    overflow-x: hidden;
+
+    -webkit-font-smoothing: antialiased;
 }
-.alert {
-  border-radius: 0px;
-  font-size: 12px;
-  margin-bottom: 1px;
-  padding: 3px;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.alert
+{
+    font-size: 12px;
+
+    padding: 6px;
 }
-.tab-content {
-  overflow: auto;
+span,
+img,
+.panel-heading,
+.table tbody tr td
+{
+    cursor: default;
+    -webkit-user-select: none !important;
 }
-#poi-app-container {
-  overflow: hidden;
+a,
+button
+{
+    cursor: pointer;
 }
-kan-game poi-info .alert {
-  opacity: 0.7;
-  padding: 6px 3px 5px 3px;
-  margin-bottom: 0px;
-  height: 100%;
+hr
+{
+    display: none;
+
+    margin-top: 0;
+    margin-bottom: 0;
 }
-kan-game poi-map-reminder .alert {
-  width: 120px;
+poi-app .container
+{
+    overflow-x: hidden;
+
+    width: auto;
+    padding-right: 0;
+    padding-left: 0;
 }
-span, img, .panel-heading, .table tbody tr td {
-  -webkit-user-select: none !important;
-  cursor: default;
+table
+{
+    table-layout: fixed;
 }
-a, button {
-  cursor: pointer;
+.table tbody tr td
+{
+    font-size: 12px;
+
+    overflow: hidden;
+
+    padding: 4px 4px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
-hr {
-  margin-top: 5px;
-  margin-bottom: 5px;
+.table tbody tr td .label
+{
+    /*color: #fff;*/
 }
-poi-app {
-  position: static;
+
+poi-app poi-nav-tabs nav ul li
+{
+    overflow: hidden;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    flex: 1;
 }
-poi-app .container {
-  padding-left: 0px;
-  padding-right: 0px;
-  width: auto;
-  overflow-x: hidden;
+poi-app poi-nav-tabs nav ul li a
+{
+    text-align: center;
 }
-table {
-  table-layout: fixed;
+poi-app poi-nav-tabs nav ul.dropdown-menu
+{
+    min-width: 100%;
 }
-poi-app poi-nav-tabs nav ul {
-  display: flex;
+poi-app poi-nav-tabs nav li.dropdown
+{
+    overflow: inherit;
 }
-poi-app poi-nav-tabs nav ul li {
+poi-info
+{
+    display: flex;
+    height: 30px;
+    align-items: stretch;
+}
+poi-alert
+{
   flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
-poi-app poi-nav-tabs nav ul li a {
-  text-align: center;
+kan-game poi-info .alert
+{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    height: 30px;
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: 0;
 }
-poi-app poi-nav-tabs nav ul.dropdown-menu {
-  min-width: 100%;
+kan-game poi-map-reminder .alert
+{
+    width: 150px;
+    color: #fff;
+    background-color: #464545;
 }
-poi-app poi-nav-tabs nav li.dropdown {
-  overflow: inherit;
+poi-control
+{
+    height: 100%;
+    margin: 0;
 }
-poi-info {
-  display: flex;
-  align-items: stretch;
+poi-control .btn-sm
+{
+    font-size: 13px;
+
+    height: 100%;
+    border-radius: 0px;
+    height: 30px;
+    margin: 0;
 }
-poi-alert {
-  flex: 1;
+poi-control button .fa
+{
+    width: 22px;
+
+    cursor: pointer !important;
 }
-poi-control {
-  height: 100%;
+
+.btn:focus,
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn.active.focus
+{
+    outline: none !important;
 }
-poi-control .btn-sm {
-  border-radius: 0px;
-  border-width: 2px;
-  padding: 2px 7px;
-  font-size: 15px;
+
+.poi-tabs-container
+{
+    display: flex;
+    flex-direction: column;
 }
-poi-control button .fa {
-  cursor: pointer !important;
-  width: 20px;
+.poi-tabs-container > div
+{
+    flex: 1;
 }
-.table tbody tr td {
-  padding: 8px;
-}
-.btn:focus, .btn:active:focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn.active.focus {
-  outline: none !important;
-}
-.poi-tabs-container {
-  display: flex;
-}
-.poi-tabs-container > div {
-  flex: 1;
+poi-app .tab-content
+{
+    padding: 12px 5px 0;
 }
 
 .poi-ship-cond-0.dark {  /* cond 0~19  */
