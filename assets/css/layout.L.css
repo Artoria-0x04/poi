@@ -1,0 +1,16 @@
+poi-main
+{
+    display: flex;
+
+    flex-flow: row nowrap;
+}
+poi-app
+{
+    display: flex;
+
+    flex-flow: column;
+}
+hr
+{
+    display: none;
+}

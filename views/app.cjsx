@@ -176,11 +176,16 @@ if process.platform == 'darwin'
   Menu.setApplicationMenu(menu)
 
 # Main tabbed area
-ControlledTabArea =
-  if config.get('poi.tabarea.double', false)
-    require './double-tabareas'
+layout =
+  if config.get('poi.tabarea', false) == 'double'
+    ControlledTabArea = require './double-tabareas'
+    'double'
+  else if config.get('poi.tabarea', false) == 'L'
+    {ControlledTabArea, AdditionalTabArea, PlusTabArea} = require './L-tabareas'
+    'L'
   else
-    require './single-tabarea'
+    ControlledTabArea = require './single-tabarea'
+    'single'
 
 # Alert info
 PoiAlert = React.createClass
@@ -372,6 +377,9 @@ React.render <PoiControl />, $('poi-control')
 React.render <ModalTrigger />, $('poi-modal-trigger')
 React.render <ControlledTabArea />, $('poi-nav-tabs')
 React.render <CustomCssInjector />, $('poi-css-injector')
+if layout == 'L'
+  React.render <AdditionalTabArea />, $('poi-additional-tabs')
+  React.render <PlusTabArea />, $('poi-tab-plus')
 
 # Readme contents
 dontShowAgain = ->

@@ -30,7 +30,7 @@ PoiConfig = React.createClass
     gameWidth: gameWidth
     useFixedResolution: config.get('poi.webview.width', -1) != -1
     enableConfirmQuit: config.get 'poi.confirm.quit', false
-    enableDoubleTabbed: config.get 'poi.tabarea.double', false
+    tabbedLayout: config.get 'poi.tabarea', "horizontal"
     enableNotify: config.get 'poi.notify.enabled', true
     notifyVolume: config.get 'poi.notify.volume', true
     zoomLevel: config.get 'poi.zoomLevel', 1
@@ -80,12 +80,27 @@ PoiConfig = React.createClass
     config.set 'poi.mapstartcheck.item', !enabled
     @setState
       mapStartCheckItem: !enabled
-  handleSetDoubleTabbed: ->
-    enabled = @state.enableDoubleTabbed
-    config.set 'poi.tabarea.double', !enabled
+  handleSetTabbed: (tabbed) ->
+    config.set 'poi.tabarea', tabbed
+    if tabbed = "L"
+      layout = "L"
+    config.set 'poi.layout', tabbed
+    event = new CustomEvent 'layout.change',
+      bubbles: true
+      cancelable: true
+      detail:
+        layout: layout
+    window.dispatchEvent event
     @setState
-      enableDoubleTabbed: !enabled
-    toggleModal __('Layout settings'), __('You must reboot the app for the changes to take effect.')
+      layout: layout
+      enableLTabbed: !enabled
+    toggleModal __('layout settings'), __('You must reboot the app for the changes to take effect')
+  handleSetDoubleTabbed: ->
+    enabled = if @state.tabbedLayout == 'double' then true else false
+    config.set 'poi.tabarea', 'double'
+    @setState
+      tabbedLayout: 'double'
+    toggleModal __('layout settings'), __('You must reboot the app for the changes to take effect')
   handleSetLayout: (layout) ->
     return if @state.layout == layout
     config.set 'poi.layout', layout
@@ -219,8 +234,15 @@ PoiConfig = React.createClass
               {if @state.layout == 'vertical' then '√ ' else ''}{__ 'Use vertical layout'}
             </Button>
           </Col>
-          <Col xs={12}>
-            <Input type="checkbox" label={__ 'Split component and plugin panel'} checked={@state.enableDoubleTabbed} onChange={@handleSetDoubleTabbed} />
+          <Col style={marginTop:10} xs={6}>
+            <Button bsStyle={if @state.tabbedLayout == 'L' then 'success' else 'danger'} onClick={@handleSetTabbed.bind @, 'L'} style={width: '100%'}>
+              {if @state.layout == 'L' then '√ ' else ''}使用L布局
+            </Button>
+          </Col>
+          <Col style={marginTop:10} xs={6}>
+            <Button bsStyle={if @state.tabbedLayout == 'double' then 'success' else 'danger'} onClick={@handleSetTabbed.bind @, 'double'} style={width: '100%'}>
+              {if @state.layout == 'double' then '√ ' else ''}{__ 'Split component and plugin panel'}
+            </Button>
           </Col>
         </Grid>
       </div>
