@@ -6,7 +6,7 @@
 	url = https://github.com/poooi/plugin-report.git
 [submodule "plugins/prophet"]
 	path = plugins/prophet
-	url = https://github.com/poooi/plugin-prophet.git
+	url = https://github.com/PHELiOX/plugin-prophet.git
 [submodule "plugins/item-improvement"]
 	path = plugins/item-improvement
 	url = https://github.com/poooi/plugin-item-improvement
