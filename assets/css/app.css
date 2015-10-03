@@ -163,7 +163,7 @@ poi-control button .fa
 .poi-tabs-container
 {
     display: flex;
-    flex-direction: column;
+    flex-flow: row nowrap;
 }
 .poi-tabs-container > div
 {

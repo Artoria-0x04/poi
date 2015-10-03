@@ -27,7 +27,7 @@ PoiConfig = React.createClass
     gameWidth: gameWidth
     useFixedResolution: config.get('poi.webview.width', -1) != -1
     enableConfirmQuit: config.get 'poi.confirm.quit', false
-    tabbedLayout: config.get 'poi.tabarea', "horizontal"
+    tabbedLayout: config.get 'poi.tabarea', "single"
     enableNotify: config.get 'poi.notify.enabled', true
     notifyVolume: config.get 'poi.notify.volume', 1.0
     zoomLevel: config.get 'poi.zoomLevel', 1
@@ -80,26 +80,11 @@ PoiConfig = React.createClass
     config.set 'poi.mapstartcheck.item', !enabled
     @setState
       mapStartCheckItem: !enabled
-  handleSetTabbed: (tabbed) ->
-    config.set 'poi.tabarea', tabbed
-    if tabbed = "L"
-      layout = "L"
-    config.set 'poi.layout', tabbed
-    event = new CustomEvent 'layout.change',
-      bubbles: true
-      cancelable: true
-      detail:
-        layout: layout
-    window.dispatchEvent event
-    @setState
-      layout: layout
-      enableLTabbed: !enabled
-    toggleModal __('layout settings'), __('You must reboot the app for the changes to take effect')
   handleSetDoubleTabbed: ->
-    enabled = if @state.tabbedLayout == 'double' then true else false
-    config.set 'poi.tabarea', 'double'
+    window.tabbed = if @state.tabbedLayout == 'single' then 'double' else 'single'
+    config.set 'poi.tabarea', tabbed
     @setState
-      tabbedLayout: 'double'
+      tabbedLayout: tabbed
     toggleModal __('layout settings'), __('You must reboot the app for the changes to take effect')
   handleSetLayout: (layout) ->
     return if @state.layout == layout
@@ -237,13 +222,13 @@ PoiConfig = React.createClass
             </Button>
           </Col>
           <Col style={marginTop:10} xs={6}>
-            <Button bsStyle={if @state.tabbedLayout == 'L' then 'success' else 'danger'} onClick={@handleSetTabbed.bind @, 'L'} style={width: '100%'}>
+            <Button bsStyle={if @state.layout == 'L' then 'success' else 'danger'} onClick={@handleSetLayout.bind @, 'L'} style={width: '100%'}>
               {if @state.layout == 'L' then '√ ' else ''}使用L布局
             </Button>
           </Col>
           <Col style={marginTop:10} xs={6}>
-            <Button bsStyle={if @state.tabbedLayout == 'double' then 'success' else 'danger'} onClick={@handleSetTabbed.bind @, 'double'} style={width: '100%'}>
-              {if @state.layout == 'double' then '√ ' else ''}{__ 'Split component and plugin panel'}
+            <Button bsStyle={if @state.tabbedLayout == 'double' then 'success' else 'danger'} onClick={@handleSetDoubleTabbed.bind @, 'double'} style={width: '100%'}>
+              {if @state.tabbedLayout == 'double' then '√ ' else ''}{__ 'Split component and plugin panel'}
             </Button>
           </Col>
         </Grid>

@@ -18,6 +18,7 @@ adjustSize = ->
   navHeight = $('poi-nav-tabs nav')?.getBoundingClientRect().height
   appMargin = 40
   tabMargin = 12
+  toolbarHeight = 30
   # Tabs row I
   [].forEach.call $$('poi-app div.poi-app-tabpane'), (e) ->
     e.style.height = "#{webviewHeight - navHeight - tabMargin}px"
@@ -26,16 +27,23 @@ adjustSize = ->
     e.style.minHeight = "#{webviewHeight - navHeight - tabMargin}px"
   # tabs row II
   [].forEach.call $$('div.poi-app-2ndpane'), (e) ->
-    e.style.height = "#{window.innerHeight - webviewHeight - appMargin}px"
+    e.style.height = "#{window.innerHeight - webviewHeight}px"
+    e.style.overflowY = "scroll"
+    e.style.overflowX = "hidden"
+  # tabs bottom
+  [].forEach.call $$('div.poi-app-bottom'), (e) ->
+    e.style.height = "#{window.innerHeight - webviewHeight - toolbarHeight}px"
     e.style.overflowY = "scroll"
     e.style.overflowX = "hidden"
   # Fix poi-info when game size 0x0
   if webviewWidth > -0.00001 and webviewWidth < 0.00001
     $('kan-game')?.style?.display = 'none'
   else
-    $('kan-game')?.style?.display = ''
+    $('kan-game')?.style?.display = 'block'
   if url != 'http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/' and !(url?.startsWith('http://osapi.dmm.com/gadgets/ifr'))
-    $('kan-game #webview-wrapper')?.style?.height = $('kan-game webview')?.style?.height = $('kan-game webview /deep/ object[is=browserplugin]')?.style?.height = "#{window.innerHeight - 31}px"
+    $('kan-game #webview-wrapper')?.style?.height =
+    $('kan-game webview')?.style?.height =
+    $('kan-game webview /deep/ object[is=browserplugin]')?.style?.height = "#{webviewHeight}px"
     return
   factor = Math.ceil(window.innerWidth * (if window.LTabbed then 4.0 / 7.0 else 5.0 / 7.0) / 800.0 * 100) / 100.0
   if webviewWidth > 0.00001

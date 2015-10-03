@@ -5,7 +5,7 @@ glob = require 'glob'
 {TabbedArea, TabPane, DropdownButton} = ReactBootstrap
 
 $('poi-main').className += 'double-tabbed'
-window.doubleTabbed = true
+window.tabbed = 'double'
 
 # Get components
 components = glob.sync(path.join(ROOT, 'views', 'components', '*'))

@@ -10,14 +10,18 @@ changeBounds = ->
   borderY = bound.height - window.innerHeight
   newHeight = window.innerHeight
   newWidth = window.innerWidth
+  toolbarHeight = 30
+  tabWidth = 400
+  tabHeight = 768 - 480
   if layout == 'horizontal'
-    # Previous vertical
-    newHeight = window.innerWidth / 800 * 480 + 30
-    newWidth = window.innerWidth / 5 * 7
-  else
-    # Previous horizontal
-    newHeight = window.innerWidth / 7 * 5 / 800 * 480 + 420
-    newWidth = window.innerWidth / 7 * 5
+    newHeight = window.innerWidth / 800 * 480 + toolbarHeight
+    newWidth = window.innerWidth + tabWidth
+  else if layout == 'vertical'
+    newHeight = window.innerWidth / 800 * 480 + tabHeight
+    newWidth = window.innerWidth
+  else if layout == 'L'
+    newHeight = window.innerWidth / 800 * 480 + toolbarHeight + tabHeight
+    newWidth = window.innerWidth + tabWidth * 2
   setBounds
     x: x
     y: y

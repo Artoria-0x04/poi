@@ -4,6 +4,9 @@ glob = require 'glob'
 {_, React, ReactBootstrap, FontAwesome} = window
 {TabbedArea, TabPane, DropdownButton} = ReactBootstrap
 
+$('poi-main').className += 'single-tabbed'
+window.tabbed = 'single'
+
 # Get components
 components = glob.sync(path.join(ROOT, 'views', 'components', '*'))
 
