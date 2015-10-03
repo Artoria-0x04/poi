@@ -1,11 +1,13 @@
 path = require 'path-extra'
 {$, $$, _, React, ReactBootstrap, ROOT} = window
 {OverlayTrigger, Tooltip} = ReactBootstrap
-getBackgroundStyle = ->
+
+getBackdropstyle = ->
   if window.isDarkTheme
     backgroundColor: 'rgba(33, 33, 33, 0.7)'
   else
     backgroundColor: 'rgba(256, 256, 256, 0.7)'
+
 Slotitems = React.createClass
   render: ->
     <div className="slotitems">
