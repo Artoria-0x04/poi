@@ -2,20 +2,46 @@
 i18n = require 'i18n'
 {__, __n} = i18n
 {$, $$, _, React, ReactBootstrap, resolveTime, notify} = window
-{Table, ProgressBar, OverlayTrigger, Tooltip, Grid, Col, Alert, Row, Overlay} = ReactBootstrap
+{ProgressBar, OverlayTrigger, Tooltip, Alert, Overlay, Label} = ReactBootstrap
 
 Slotitems = require './slotitems'
-
+CondBar = require './condbar'
+StatusLabel = require './statuslabel'
 
 getMaterialStyle = (percent) ->
-  if percent <= 50
+  if percent <= 40
     'danger'
-  else if percent <= 75
+  else if percent <= 60
     'warning'
-  else if percent < 100
-    'info'
+  else if percent <= 80
+    'primary'
   else
     'success'
+
+getStatusStyle = (status) ->
+  # flag = status.reduce (a, b) -> a or b
+  flag = status[0] or status[1] # retreat or repairing
+  if flag? and flag
+    return {opacity: 0.4}
+  else
+    return {}
+    # $("#ShipView #shipInfo").style.opacity = 0.4
+
+getStatusArray = (shipId) ->
+  status = []
+  # retreat status
+  status[0] = false
+  # reparing
+  status[1] = if shipId in _ndocks then true else false
+  # special 1 locked phase 1
+  status[2] = if _ships[shipId].api_sally_area == 1 then true else false
+  # special 2 locked phase 2
+  status[3] = if _ships[shipId].api_sally_area == 2 then true else false
+  # special 3 locked phase 3
+  status[4] = if _ships[shipId].api_sally_area == 3 then true else false
+  # special 3 locked phase 3
+  status[5] = if _ships[shipId].api_sally_area == 4 then true else false
+  return status
 
 getFontStyle = (theme)  ->
   if window.isDarkTheme then color: '#FFF' else color: '#000'
@@ -44,20 +70,19 @@ getHpStyle = (percent) ->
   else if percent <= 50
     'warning'
   else if percent <= 75
-    'info'
+    'primary'
   else
     'success'
 
 getMaterialStyleData = (percent) ->
-  if percent <= 20
-    color: '#F37B1D'
-  else if percent <= 40
+  if percent <= 40
     color: '#DD514C'
+  else if percent <= 60
+    color: '#F37B1D'
   else if percent < 100
     color: '#FFFF00'
   else
     null
-
 
 # Tyku
 # 制空値 = [(艦載機の対空値) × √(搭載数)] の総計 + 熟練補正
@@ -231,7 +256,7 @@ TopAlert = React.createClass
         @inBattle = true
       when '/kcsapi/api_get_member/deck', '/kcsapi/api_get_member/ship_deck', '/kcsapi/api_get_member/ship2', '/kcsapi/api_get_member/ship3'
         refreshFlag = true
-      when '/kcsapi/api_req_hensei/change', '/kcsapi/api_req_kaisou/powerup', '/kcsapi/api_req_kousyou/destroyship'
+      when '/kcsapi/api_req_hensei/change', '/kcsapi/api_req_kaisou/powerup', '/kcsapi/api_req_kousyou/destroyship', '/kcsapi/api_req_nyukyo/start'
         refreshFlag = true
     if refreshFlag
       @setAlert()
@@ -334,7 +359,7 @@ TopAlert = React.createClass
             <span>{__ 'Fighter Power'}: {@messages.tyku.total}</span>
           </OverlayTrigger>
         </span>
-        <span style={flex: 1}>
+        <span style={flex: "none"}>
           <OverlayTrigger placement='bottom' overlay={
             <Tooltip>
               <div>2-5 {__ 'Autumn'}: {@messages.saku25a.ship} + {@messages.saku25a.item} - {@messages.saku25a.teitoku} = {@messages.saku25a.total}</div>
@@ -344,7 +369,9 @@ TopAlert = React.createClass
             <span>{__ 'LOS'}: {@messages.saku25a.total}</span>
           </OverlayTrigger>
         </span>
-        <span style={flex: 1.5}>{@getState()}: <span id={"deck-condition-countdown-#{@props.deckIndex}-#{@componentId}"}>{resolveTime @maxCountdown}</span></span>
+        <span style={flex: "none"}>{@getState()}:&nbsp;
+          <span id={"deck-condition-countdown-#{@props.deckIndex}-#{@componentId}"}>{resolveTime @maxCountdown}</span>
+        </span>
       </div>
     </Alert>
 
@@ -352,10 +379,65 @@ PaneBody = React.createClass
   condDynamicUpdateFlag: false
   getInitialState: ->
     cond: [0, 0, 0, 0, 0, 0]
+    label: [[false, false, false, false, false, false],
+            [false, false, false, false, false, false],
+            [false, false, false, false, false, false],
+            [false, false, false, false, false, false],
+            [false, false, false, false, false, false],
+            [false, false, false, false, false, false]]
+    retreat: [false, false, false, false, false, false]
   onCondChange: (cond) ->
     condDynamicUpdateFlag = true
     @setState
       cond: cond
+  updateLabels: ->
+    # refresh label
+    {label} = @state
+    for shipId, j in @props.deck.api_ship
+      continue if shipId == -1
+      ship = _ships[shipId]
+      status = getStatusArray shipId
+      status[0] = @state.retreat[j]
+      label[j] = status
+    label
+  handleResponse: (e) ->
+    {method, path, body, postBody} = e.detail
+    {retreat, label} = @state
+    switch path
+      when '/kcsapi/api_port/port'
+        retreat = [false, false, false, false, false, false]
+      when "/kcsapi/api_req_combined_battle/battleresult"
+        retreat = [false, false, false, false, false, false]
+        if body.api_escape_flag
+          id = body.api_escape.api_escape_idx
+          if id > 6 and @props.deckIndex == 1
+            id -= 6
+            tow = body.api_escape.api_tow_idx - 6
+            retreat[tow - 1] = true
+          retreat[id - 1] = true
+          @setState
+            retreat: retreat
+      when '/kcsapi/api_req_combined_battle/goback_port'
+        if not body.api_result
+          retreat = [false, false, false, false, false, false]
+      when '/kcsapi/api_req_nyukyo/start'
+        # shipId = parseInt postBody.api_ship_id
+        # if shipId in @props.deck.api_ship
+        #   i = @props.deck.api_ship.indexOf shipId
+        #   status = getStatusArray shipId
+        #   label[i] = status
+        true
+    label = @updateLabels()
+    @setState
+      retreat: retreat
+      label: label
+  componentDidMount: ->
+    window.addEventListener 'game.response', @handleResponse
+    label = @updateLabels()
+    @setState
+      label: label
+  componentWillUnmount: ->
+    window.removeEventListener 'game.response', @handleResponse
   shouldComponentUpdate: (nextProps, nextState) ->
     nextProps.activeDeck is @props.deckIndex
   componentWillReceiveProps: (nextProps) ->
@@ -388,59 +470,73 @@ PaneBody = React.createClass
         messages={@props.messages}
         deckIndex={@props.deckIndex}
         deckName={@props.deckName} />
-      <Table>
-        <tbody>
-        {
-          {$ships, $shipTypes, _ships} = window
-          for shipId, j in @props.deck.api_ship
-            continue if shipId == -1
-            ship = _ships[shipId]
-            shipInfo = $ships[ship.api_ship_id]
-            shipType = $shipTypes[shipInfo.api_stype].api_name
-            [
-              <tr key={j * 2}>
-                <td width="18%">{shipInfo.api_name}</td>
-                <td width="20%">Lv. {ship.api_lv}</td>
-                <td width="24%" className="hp-progress">
-                {
-                  if ship.api_ndock_time
-                    <OverlayTrigger show = {ship.api_ndock_time} placement='bottom' overlay={<Tooltip>{__ '入渠时间'}: {resolveTime ship.api_ndock_time / 1000}</Tooltip>}>
-                      <ProgressBar bsStyle={getHpStyle ship.api_nowhp / ship.api_maxhp * 100}
-                                   now={ship.api_nowhp / ship.api_maxhp * 100}
-                                   label={"#{ship.api_nowhp} / #{ship.api_maxhp}"} />
-                    </OverlayTrigger>
-                  else
-                    <ProgressBar bsStyle={getHpStyle ship.api_nowhp / ship.api_maxhp * 100}
-                                   now={ship.api_nowhp / ship.api_maxhp * 100}
-                                   label={"#{ship.api_nowhp} / #{ship.api_maxhp}"} />}
-                </td>
-                <td width="38%">
-                  <Slotitems data={ship.api_slot.concat(ship.api_slot_ex || -1)}
-                             onslot={ship.api_onslot}
-                             maxeq={ship.api_maxeq} />
-                </td>
-              </tr>
-              <tr key={j * 2 + 1}>
-                <td>{shipType}</td>
-                <td>Next. {ship.api_exp[1]}</td>
-                <td className="material-progress">
-                  <Grid>
-                    <Col xs={6} style={paddingRight: 1}>
-                      <ProgressBar bsStyle={getMaterialStyle ship.api_fuel / shipInfo.api_fuel_max * 100}
-                                     now={ship.api_fuel / shipInfo.api_fuel_max * 100} />
-                    </Col>
-                    <Col xs={6} style={paddingLeft: 1}>
-                      <ProgressBar bsStyle={getMaterialStyle ship.api_bull / shipInfo.api_bull_max * 100}
-                                     now={ship.api_bull / shipInfo.api_bull_max * 100} />
-                    </Col>
-                  </Grid>
-                </td>
-                <td className={window.getCondStyle @state.cond[j]}>Cond. {@state.cond[j]}</td>
-              </tr>
-            ]
-        }
-        </tbody>
-      </Table>
+      <div className="shipDetails">
+      {
+        {$ships, $shipTypes, _ships} = window
+        for shipId, j in @props.deck.api_ship
+          continue if shipId == -1
+          ship = _ships[shipId]
+          shipInfo = $ships[ship.api_ship_id]
+          shipType = $shipTypes[shipInfo.api_stype].api_name
+          [
+            <div className="shipTile">
+              <div className="statusLabel">
+                <StatusLabel
+                  label={@state.label[j]}/>
+              </div>
+              <div key={j} className="shipItem" style={getStatusStyle @state.label[j]}>
+                <div className="shipInfo">
+                  <div style={display: "flex", flexDirection: "column"}>
+                    <div className="shipBasic">
+                      <span className="shipLv">
+                        Lv. {ship.api_lv}
+                      </span>
+                      <span className='shipType'>
+                        {shipType}
+                      </span>
+                    </div>
+                    <div className="shipName">
+                      {shipInfo.api_name}
+                    </div>
+                    <CondBar
+                      j={j}
+                      deck={@props.deck}
+                      deckIndex = {@props.deckIndex}
+                      cond = {@state.cond}
+                      />
+                  </div>
+                </div>
+                <div className="shipHp">
+                  <div style={flex: 1, display: "flex"}>
+                    <span style={flex: 2}>{ship.api_nowhp} / {ship.api_maxhp}</span>
+                  </div>
+                  <OverlayTrigger show = {ship.api_ndock_time} placement='bottom' overlay={<Tooltip>{__ '入渠时间'}：{resolveTime ship.api_ndock_time / 1000}</Tooltip>}>
+                    <ProgressBar style={flex: 1} bsStyle={getHpStyle ship.api_nowhp / ship.api_maxhp * 100} now={ship.api_nowhp / ship.api_maxhp * 100} />
+                  </OverlayTrigger>
+                  <OverlayTrigger placement='right' overlay={<Tooltip>Next. {ship.api_exp[1]}</Tooltip>}>
+                    <div className="expProgress">
+                      <ProgressBar bsStyle="info" now={ship.api_exp[2]} />
+                    </div>
+                  </OverlayTrigger>
+                </div>
+                <span className="shipFB">
+                  <span style={flex: 1}>
+                    <ProgressBar bsStyle={getMaterialStyle ship.api_fuel / shipInfo.api_fuel_max * 100}
+                                 now={ship.api_fuel / shipInfo.api_fuel_max * 100} />
+                  </span>
+                  <span style={flex: 1}>
+                    <ProgressBar bsStyle={getMaterialStyle ship.api_bull / shipInfo.api_bull_max * 100}
+                                 now={ship.api_bull / shipInfo.api_bull_max * 100} />
+                  </span>
+                </span>
+                <div className="shipSlot">
+                  <Slotitems data={ship.api_slot.concat(ship.api_slot_ex || -1)} onslot={ship.api_onslot} maxeq={ship.api_maxeq} dataex={ship.api_slot_ex} />
+                </div>
+              </div>
+            </div>
+          ]
+      }
+      </div>
     </div>
 
 module.exports = PaneBody
