@@ -240,7 +240,7 @@ if process.platform == 'darwin'
     themeMenuList[window.allThemes.indexOf(e.detail.theme)].checked = true
 
 # Main tabbed area
-window.tabbed = config.get('poi.tabarea', false)
+window.tabbed = config.get('poi.tabarea', 'single')
 if tabbed == 'double'
   ControlledTabArea = require './double-tabareas'
 else if tabbed == 'single'
