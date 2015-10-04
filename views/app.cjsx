@@ -7,6 +7,7 @@ i18n = require 'i18n'
 {ROOT, EXROOT, _, $, $$, React, ReactBootstrap} = window
 {Button, Alert, OverlayMixin, Modal, OverlayTrigger, Tooltip} = ReactBootstrap
 {config, proxy, remote, log, success, warn, error, toggleModal} = window
+{layout, tabbed} = window
 
 # i18n configure
 i18n.configure

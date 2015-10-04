@@ -80,9 +80,10 @@ PoiConfig = React.createClass
     config.set 'poi.mapstartcheck.item', !enabled
     @setState
       mapStartCheckItem: !enabled
-  handleSetDoubleTabbed: ->
-    window.tabbed = if @state.tabbedLayout == 'single' then 'double' else 'single'
+  handleSetDoubleTabbed: (tabbed) ->
+    tabbed = if @state.tabbedLayout == 'single' then 'double' else 'single'
     config.set 'poi.tabarea', tabbed
+    window.tabbed = tabbed
     @setState
       tabbedLayout: tabbed
     toggleModal __('layout settings'), __('You must reboot the app for the changes to take effect')
