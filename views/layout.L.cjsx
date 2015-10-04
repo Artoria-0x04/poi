@@ -144,7 +144,7 @@ module.exports =
     $('kan-game webview').removeEventListener 'page-title-set', handleTitleSet
     $('kan-game').style.flex = null
     $('poi-app').style.flex = null
-    $('poi-addition').style.flex = null
+    $('poi-bottom').style.flex = null
     $('poi-plus').style.flex = null
     if factor
       $('kan-game webview')?.style?.height = $('kan-game webview /deep/ object[is=browserplugin]')?.style?.height = "#{Math.floor(480 * factor) - 5}px"

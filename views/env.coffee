@@ -138,14 +138,21 @@ window.config = remote.require './lib/config'
 window.proxy = remote.require './lib/proxy'
 window.CONST = Object.remoteClone remote.require './lib/constant'
 
+# User configs
 checkLayout = (layout) ->
-  if layout isnt 'horizontal' and layout isnt 'vertical' and layout isnt 'L'
+  if layout not in ['horizontal', 'vertical', 'L']
     layout = 'horizontal'
     config.set 'poi.layout', layout
   layout
 
-# User configs
+checkTab = (tabs) ->
+  if tabs not in ['single', 'double']
+    tabs = 'single'
+    config.set 'poi.tabarea', tabs
+  tabs
+  
 window.layout = checkLayout(config.get 'poi.layout', 'horizontal')
+window.tabbed = checkTab(config.get 'poi.tabarea', 'single')
 window.webviewWidth = config.get 'poi.webview.width', -1
 window.language = config.get 'poi.language', navigator.language
 window.zoomLevel = config.get 'poi.zoomLevel', 1
