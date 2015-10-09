@@ -209,6 +209,10 @@
   /*border: 1px solid orange;*/
   padding-top: 1px;
   padding-bottom: 1px;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-around;
 }
 #MainView .resource-panel .material-value {
   margin-left: 5px;
