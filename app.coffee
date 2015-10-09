@@ -12,6 +12,7 @@ if process.platform == 'darwin'
   global.EXROOT = global.APPDATA_PATH
 else
   global.EXROOT = global.EXECROOT
+process.env.DEBUG = 1
 if process.env.DEBUG?
   global.SERVER_HOSTNAME = '127.0.0.1:17027'
 else
