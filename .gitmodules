@@ -12,7 +12,7 @@
 	url = https://github.com/poooi/plugin-item-improvement
 [submodule "plugins/expedition"]
 	path = plugins/expedition
-	url = https://github.com/poooi/plugin-expedition
+url=https://github.com/PHELiOX/plugin-expedition
 [submodule "plugins/item-info"]
 	path = plugins/item-info
 	url = https://github.com/poooi/plugin-item-info
