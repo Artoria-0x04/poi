@@ -171,6 +171,12 @@ window.loadTheme = (th) ->
   else
     $('#bootstrap-css')?.setAttribute 'href', "file://#{ROOT}/assets/themes/#{theme}/css/#{theme}.css"
   window.reloadCustomCss()
+  try
+    window.ThemeRenderer = require('file://#{ROOT}/assets/themes/#{theme}')
+  catch e
+    console.log 'ThemeRenderer is not defined' if process.env.DEBUG?
+  finally
+    window.ThemeRenderer = null
 window.applyTheme = (th) ->
   config.set 'poi.theme', th
   window.loadTheme th
