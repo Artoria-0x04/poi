@@ -45,6 +45,7 @@ plugins = _.sortBy(plugins, 'priority')
 tabbedPlugins = plugins.filter (plugin) ->
   !plugin.handleClick?
 
+compactview = require path.join(ROOT, 'plugins', 'compactview')
 settings = require path.join(ROOT, 'views', 'components', 'settings')
 main = require path.join(ROOT, 'views', 'components', 'main')
 prophet = require path.join(ROOT, 'plugins', 'prophet')
@@ -52,7 +53,7 @@ prophet = require path.join(ROOT, 'plugins', 'prophet')
 lockedTab = false
 ControlledTabArea = React.createClass
   getInitialState: ->
-    key: [1, 1]
+    key: [3, 1]
   handleSelect: (key) ->
     @setState {key} if key[0] isnt @state.key[0] or key[1] isnt @state.key[1]
   handleSelectLeft: (key) ->
@@ -93,12 +94,18 @@ ControlledTabArea = React.createClass
   componentDidMount: ->
     window.addEventListener 'game.start', @handleKeyDown
     window.addEventListener 'tabarea.reload', @forceUpdate
+  nowTime: 0
+  componentWillUpdate: (nextProps, nextState) ->
+    @nowTime = (new Date()).getTime()
+  componentDidUpdate: (prevProps, prevState) ->
+    cur = (new Date()).getTime()
+    console.log "the cost of side-tab-module's render: #{cur-@nowTime}ms" if process.env.DEBUG?
   render: ->
     <div className='poi-tabs-container'>
     {
       if window.tabbed == 'single'
         <TabbedArea activeKey={@state.key[0]} onSelect={@handleSelectLeft} animation={false} style={flex: 1}>
-          <DropdownButton key={-1} eventKey={-1} tab={<span>{plugins[@state.key[1]]?.displayName || <span><FontAwesome name='sitemap' />{__ ' Plugins'}</span>}</span>} navItem={true}>
+          <DropdownButton key={-1} eventKey={-1} tab={<span>{plugins[@state.key[0]]?.displayName || <span><FontAwesome name='sitemap' />{__ ' Plugins'}</span>}</span>} navItem={true}>
           {
             counter = -1
             plugins.map (plugin, index) =>
@@ -107,7 +114,7 @@ ControlledTabArea = React.createClass
               else
                 eventKey = (counter += 1)
                 <TabPane key={index} eventKey={eventKey} tab={plugin.displayName} id={plugin.name} className='poi-app-tabpane'>
-                  <PluginWrap plugin={plugin} selectedKey={@state.key[1]} index={eventKey} />
+                  <PluginWrap plugin={plugin} selectedKey={@state.key[0]} index={eventKey} />
                 </TabPane>
           }
           </DropdownButton>
@@ -121,8 +128,8 @@ ControlledTabArea = React.createClass
         </TabbedArea>
       else if window.tabbed == 'double'
         [
-          <TabbedArea activeKey={@state.key[0]} onSelect={@handleSelectLeft} animation={false} style={flex: 1}>
-            <DropdownButton key={-1} eventKey={-1} tab={<span>{plugins[@state.key[1]]?.displayName || <span><FontAwesome name='sitemap' />{__ ' Plugins'}</span>}</span>} navItem={true}>
+          <TabbedArea key={0} activeKey={@state.key[0]} onSelect={@handleSelectLeft} animation={false} style={flex: 1}>
+            <DropdownButton key={-1} eventKey={-1} tab={<span>{plugins[@state.key[0]]?.displayName || <span><FontAwesome name='sitemap' />{__ ' Plugins'}</span>}</span>} navItem={true}>
             {
               counter = -1
               plugins.map (plugin, index) =>
@@ -131,12 +138,12 @@ ControlledTabArea = React.createClass
                 else
                   eventKey = (counter += 1)
                   <TabPane key={index} eventKey={eventKey} tab={plugin.displayName} id={plugin.name} className='poi-app-tabpane'>
-                    <PluginWrap plugin={plugin} selectedKey={@state.key[1]} index={eventKey} />
+                    <PluginWrap plugin={plugin} selectedKey={@state.key[0]} index={eventKey} />
                   </TabPane>
             }
             </DropdownButton>
           </TabbedArea>
-          <TabbedArea activeKey={@state.key[1]} onSelect={@handleSelectRight} animation={false} style={flex: 1}>
+          <TabbedArea key={1} activeKey={@state.key[1]} onSelect={@handleSelectRight} animation={false} style={flex: 1}>
             <DropdownButton key={-1} eventKey={-1} tab={<span>{plugins[@state.key[1]]?.displayName || <span><FontAwesome name='sitemap' />{__ ' Plugins'}</span>}</span>} navItem={true}>
             {
               counter = -1
@@ -153,7 +160,7 @@ ControlledTabArea = React.createClass
             <TabPane key={1000} eventKey={1000} tab={settings.displayName} id={settings.name} className='poi-app-tabpane'>
             {
               React.createElement settings.reactClass,
-                selectedKey: @state.key[0]
+                selectedKey: @state.key[1]
                 index: 1000
             }
             </TabPane>
@@ -165,14 +172,26 @@ ControlledTabArea = React.createClass
     </div>
 
 BottomTabArea = React.createClass
+  nowTime: 0
+  componentWillUpdate: (nextProps, nextState) ->
+    @nowTime = (new Date()).getTime()
+  componentDidUpdate: (prevProps, prevState) ->
+    cur = (new Date()).getTime()
+    console.log "the cost of bottom-tab-module's render: #{cur-@nowTime}ms" if process.env.DEBUG?
   render: ->
-    <div key={0} className="poi-app-bottom" id={main.name} style={width:"100%", overflowX:"hidden", overflowY:"scroll"}>
+    <div key={0} className="poi-app-bottom" id={compactview.name} style={width:"100%", overflowX:"hidden", overflowY:"scroll"}>
       {
-        React.createElement main.reactClass
+        React.createElement compactview.reactClass
       }
     </div>
 
 PlusTabArea = React.createClass
+  nowTime: 0
+  componentWillUpdate: (nextProps, nextState) ->
+    @nowTime = (new Date()).getTime()
+  componentDidUpdate: (prevProps, prevState) ->
+    cur = (new Date()).getTime()
+    console.log "the cost of plus-tab-module's render: #{cur-@nowTime}ms" if process.env.DEBUG?
   render: ->
     <div key={1} className="poi-app-2ndpane" id={prophet.name} style={width:"100%", overflowX:"hidden", overflowY:"scroll"}>
       {
