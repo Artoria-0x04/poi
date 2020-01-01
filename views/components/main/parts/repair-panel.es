@@ -48,11 +48,12 @@ const inRepairShipsDataSelector = createSelector(
   (inRepairShipsId, ships) => inRepairShipsId.map(shipId => ships[shipId]),
 )
 
-const EmptyDock = ({ state }) => (
-  <EmptyDockWrapper className="empty-dock">
-    <FA name={state === 0 ? 'bath' : 'lock'} />
-  </EmptyDockWrapper>
-)
+const EmptyDock = ({ state }) =>
+  state === 0 ? (
+    <EmptyDockWrapper className="empty-dock">
+      <FA name="bath" />
+    </EmptyDockWrapper>
+  ) : null
 
 const getPanelDimension = width => {
   if (width > 480) {

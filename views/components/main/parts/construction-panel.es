@@ -21,11 +21,12 @@ import {
   EmptyDockWrapper,
 } from './styled-components'
 
-const EmptyDock = ({ state }) => (
-  <EmptyDockWrapper className="empty-dock">
-    <FA name={state === 0 ? 'inbox' : 'lock'} />
-  </EmptyDockWrapper>
-)
+const EmptyDock = ({ state }) =>
+  state === 0 ? (
+    <EmptyDockWrapper className="empty-dock">
+      <FA name="inbox" />
+    </EmptyDockWrapper>
+  ) : null
 
 const getPanelDimension = width => {
   if (width > 480) {
@@ -114,9 +115,9 @@ export class ConstructionPanel extends Component {
               const isInUse = dock.api_state > 0
               const isLSC = isInUse && dock.api_item1 >= 1000
               const dockName =
-                dock.api_state == -1
+                dock.api_state === -1
                   ? this.props.t('main:Locked')
-                  : dock.api_state == 0
+                  : dock.api_state === 0
                   ? this.props.t('main:Empty')
                   : displayShipName
                   ? this.getDockShipName(i, '???')
