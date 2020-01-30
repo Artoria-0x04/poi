@@ -171,6 +171,7 @@
   "GPU": "GPU",
   "description_markdown": "\npoi is an open source Kancolle browser. poi behaves the same as Chrome and won't modify game data, packets or implement bots/macros. The main poi provides basic functionalities and is complemented by a variety of plugins.\n",
   "repair-plugins-confirmation": "poi will empty plugin folder and re-install current plugins, which won't touch plugin data but will take some time. Continue?",
+  "plugin-install-failed-message": "Plugin installation failed. If it's not a network issue, it may be fixed by clicking 'Repair Plugins' button.",
   "Accessibility": "Accessibility",
   "Color blind mode": "Color blind mode",
   "none": "None",
@@ -182,5 +183,11 @@
   "tritanomaly": "Tritanomaly",
   "achromatopsia": "Achromatopsia",
   "achromatomaly": "Achromatomaly",
-  "Description": "Description"
+  "Description": "Description",
+  "Connection test": "Connection test",
+  "Your connection looks good": "Your connection looks good",
+  "Start testing": "Start testing",
+  "connection-test-failure-message": "Your connection seems having issue. Please verify you configuration.",
+  "connection-test-description": "The test will try to connect Google.com with your proxy configuration. Its result is for reference only.",
+  "AvatarBackground": "Avatar Background Color"
 }

@@ -147,6 +147,7 @@ export default {
     for (const w of BrowserWindow.getAllWindows())
       if (!hidden) {
         state[w.id] = w.isVisible()
+
         w.hide()
       } else {
         if (state[w.id]) {

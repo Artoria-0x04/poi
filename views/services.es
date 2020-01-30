@@ -4,6 +4,9 @@ import { isInGame } from 'views/utils/game-utils'
 import { observer, observe } from 'redux-observers'
 import { store } from 'views/create-store'
 import i18next from 'views/env-parts/i18next'
+import { ResourceNotifier } from './services/resource-notifier'
+import pluginManager from 'views/services/plugin-manager'
+import semver from 'semver'
 
 const proxy = remote.require('./lib/proxy')
 
@@ -184,3 +187,25 @@ remote.getCurrentWindow().on('show', () => {
     getStore('layout.webview.ref').executeJavaScript('align()')
   }
 })
+
+// Initialize webview audio mute
+remote.getCurrentWebContents().on('did-attach-webview', (e, webContents) => {
+  setWebviewAudioMuted(webContents, config.get('poi.content.muted', false))
+})
+
+// workaround for audioMuted not working on game iframe navgated
+ResourceNotifier.addListener('request', detail => {
+  if (detail.url.includes('version.json')) {
+    setWebviewAudioMuted(document.querySelector('webview'), config.get('poi.content.muted', false))
+  }
+})
+
+function setWebviewAudioMuted(w, muted) {
+  // workaround for audioMuted not working on game iframe navigated
+  if (muted) {
+    w.setAudioMuted(!muted)
+  }
+  setTimeout(() => {
+    w.setAudioMuted(muted)
+  }, 50)
+}

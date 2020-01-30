@@ -1,10 +1,12 @@
+/* global config */
+
 import React, { Component } from 'react'
-import { ProgressBar, Position, PopoverInteractionKind, Intent } from '@blueprintjs/core'
+import { ProgressBar, Position, PopoverInteractionKind, Intent, Button } from '@blueprintjs/core'
 import { createSelector } from 'reselect'
 import { connect } from 'react-redux'
 import { get, map, zip, each } from 'lodash'
 import { withNamespaces } from 'react-i18next'
-import styled, { css, keyframes } from 'styled-components'
+import styled, { css, keyframes, createGlobalStyle } from 'styled-components'
 import { rgba } from 'polished'
 
 import { MaterialIcon } from 'views/components/etc/icon'
@@ -16,6 +18,17 @@ import {
 } from 'views/utils/selectors'
 import { CustomTag } from 'views/components/etc/custom-tag'
 import { Popover } from 'views/components/etc/overlay'
+
+const GlobalStyle = createGlobalStyle`
+  ${({ pin }) =>
+    pin &&
+    css`
+      .map-reminder-popover > .bp3-transition-container {
+        pointer-events: none;
+        z-index: 18;
+      }
+    `}
+`
 
 const PoiMapReminderTag = styled(CustomTag)`
   width: 0;
@@ -127,7 +140,20 @@ const MapTooltipMsg = styled.span`
   }
 `
 
+const PinBtn = styled(Button)`
+  pointer-events: all;
+  position: absolute;
+  right: 8px;
+  top: 7px;
+`
+
 const emptyObj = {}
+
+const emptyMap = (
+  <MapRouteContainer className="map-route-container">
+    <MapRoutesSVG width="190" height="110" viewBox="0 0 190 110" className="maproutes" />
+  </MapRouteContainer>
+)
 
 const MapRoutes = connect(state => ({
   sortieMapId: get(state, 'sortie.sortieMapId'),
@@ -135,9 +161,9 @@ const MapRoutes = connect(state => ({
   bossSpot: get(state, 'sortie.bossSpot'),
   allMaps: get(state, 'fcd.map'),
 }))(({ sortieMapId, spotHistory, bossSpot, allMaps }) => {
-  if (!sortieMapId || !allMaps) return <div />
+  if (!sortieMapId || !allMaps) return emptyMap
   const mapspots = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.spots`, {})
-  if (!mapspots || !Object.keys(mapspots).length) return <div />
+  if (!mapspots || !Object.keys(mapspots).length) return emptyMap
   const maproutes = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.route`, {})
   const histLen = spotHistory.length
   const activeSpot = spotHistory[histLen - 1]
@@ -251,18 +277,29 @@ const ItemStat = withNamespaces(['others'])(
 @withNamespaces()
 @connect(
   createSelector(
-    [sortieMapDataSelector, sortieMapHpSelector, currentNodeSelector, fcdSelector],
-    (mapData, mapHp, currentNode, fcd = {}) => ({
+    [
+      sortieMapDataSelector,
+      sortieMapHpSelector,
+      currentNodeSelector,
+      fcdSelector,
+      state => get(state.config, 'poi.misc.pinminimap'),
+    ],
+    (mapData, mapHp, currentNode, fcd = {}, pinminimap) => ({
       mapId: get(mapData, '0.api_id'),
       rank: get(mapData, '0.api_eventmap.api_selected_rank'),
       currentNode,
       mapData,
       mapHp,
       maps: fcd.map || emptyObj,
+      pinminimap,
     }),
   ),
 )
 export class PoiMapReminder extends Component {
+  state = {
+    pin: false,
+  }
+
   getMapText(mapData, mapRanks) {
     if (!mapData) return this.props.t('Not in sortie')
     const { rank } = this.props
@@ -277,17 +314,20 @@ export class PoiMapReminder extends Component {
   }
 
   render() {
-    const { mapHp, mapData, currentNode, mapId, maps, t } = this.props
+    const { mapHp, mapData, currentNode, mapId, maps, pinminimap, t } = this.props
     const alphaNode =
       get(maps, `${Math.floor(mapId / 10)}-${mapId % 10}.route.${currentNode}.1`) || '?'
     return (
       <PoiMapReminderTag tag="poi-map-reminder">
         <Popover
           position={Position.TOP_RIGHT}
-          interactionKind={PopoverInteractionKind.HOVER}
+          portalClassName="map-reminder-popover"
           wrapperTagName="div"
           targetTagName="div"
           disabled={!mapData}
+          {...(pinminimap
+            ? { isOpen: !!mapData }
+            : { interactionKind: PopoverInteractionKind.HOVER })}
         >
           <MapReminder>
             {mapHp && (
@@ -326,8 +366,16 @@ export class PoiMapReminder extends Component {
               )}
             </MapInfoMsg>
             <ItemStat />
+            <PinBtn
+              icon="pin"
+              minimal
+              small
+              active={pinminimap}
+              onClick={() => config.set('poi.misc.pinminimap', !!mapData && !pinminimap)}
+            />
           </>
         </Popover>
+        <GlobalStyle pin={!!mapData && pinminimap} />
       </PoiMapReminderTag>
     )
   }
