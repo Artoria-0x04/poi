@@ -4,6 +4,8 @@ import { takeRight } from 'lodash'
 import styled, { keyframes, css } from 'styled-components'
 import { CustomTag } from 'views/components/etc/custom-tag'
 
+const HISTORY_SIZE = 6
+
 const PoiAlertTag = styled(CustomTag)`
   width: 0;
   flex: 1;
@@ -143,13 +145,13 @@ export class PoiAlert extends PureComponent {
     if (value.priority < current.priority && nowTS < this.stickyEnd) {
       if (!value.dontReserve) {
         // Old message has higher priority, push new message to history
-        history = [...takeRight(history, 5), value]
+        history = [...takeRight(history, HISTORY_SIZE), value]
         this.setState({ history })
       }
     } else if (!current.dontReserve) {
       // push old message to history
       this.updateTime = value.stickyFor || 3000
-      history = [...takeRight(history, 5), current]
+      history = [...takeRight(history, HISTORY_SIZE - 1), current]
       this.setState({
         history: history,
         current: value,
@@ -208,6 +210,26 @@ export class PoiAlert extends PureComponent {
   componentDidUpdate = (prevProps, prevState) => {
     this.stickyEnd = Date.now() + this.updateTime
     this.updateTime = 0
+    if (this.state.disableHistory) {
+      setTimeout(
+        () =>
+          this.setState({
+            disableHistory: false,
+          }),
+        1000,
+      )
+    } else if (
+      this.alertHistory &&
+      this.alertHistory.current &&
+      this.alertHistory.current.childNodes.length > HISTORY_SIZE
+    ) {
+      this.observer.unobserve(this.alertHistory.current)
+      this.setState({
+        disableHistory: true,
+      })
+    } else if (prevState.disableHistory && !this.state.disableHistory) {
+      this.observer.observe(this.alertHistory.current)
+    }
   }
 
   componentDidMount = () => {
@@ -251,25 +273,27 @@ export class PoiAlert extends PureComponent {
               </AlertArea>
             </AlertPosition>
           </AlertContainer>
-          <AlertLog
-            id="alert-log"
-            ref={this.alertHistory}
-            className="alert-log bp3-popover-content"
-            toggle={this.state.showHistory}
-            height={this.state.historyHeight}
-            containerHeight={this.state.containerHeight}
-            onClick={this.toggleHistory}
-          >
-            {this.state.history.map(h => (
-              <AlertLogContent
-                key={h.ts}
-                className={`bp3-callout bp3-intent-${h.type}`}
-                data-ts={h.ts}
-              >
-                {h.content}
-              </AlertLogContent>
-            ))}
-          </AlertLog>
+          {!this.state.disableHistory && (
+            <AlertLog
+              id="alert-log"
+              ref={this.alertHistory}
+              className="alert-log bp3-popover-content"
+              toggle={this.state.showHistory}
+              height={this.state.historyHeight}
+              containerHeight={this.state.containerHeight}
+              onClick={this.toggleHistory}
+            >
+              {this.state.history.map(h => (
+                <AlertLogContent
+                  key={h.ts}
+                  className={`bp3-callout bp3-intent-${h.type}`}
+                  data-ts={h.ts}
+                >
+                  {h.content}
+                </AlertLogContent>
+              ))}
+            </AlertLog>
+          )}
         </AlertMain>
       </PoiAlertTag>
     )

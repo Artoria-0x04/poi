@@ -1,4 +1,4 @@
-const { remote, webFrame } = require('electron')
+const { remote } = require('electron')
 const config = remote.require('./lib/config')
 
 window.ipc = remote.require('./lib/ipc')
@@ -83,27 +83,12 @@ function handleSpacingTop(show, count = 0) {
   }
   try {
     const frameDocument = document.querySelector('#game_frame').contentDocument
-    frameDocument[action]('keydown', disableTab)
     frameDocument.querySelector('#spacing_top').style.display = status
     frameDocument.querySelector('#htmlWrap').contentDocument[action]('keydown', disableTab)
+    frameDocument[action]('keydown', disableTab)
   } catch (e) {
     setTimeout(() => handleSpacingTop(show, count + 1), 1000)
   }
-}
-
-function handleZoom(count = 0) {
-  if (count > 20) {
-    return
-  }
-  const width = window.ipc.access('WebView').width
-  const zoom = Math.round(width * config.get('poi.appearance.zoom', 1)) / 1200
-  if (Number.isNaN(zoom)) {
-    setTimeout(() => handleZoom(count + 1), 1000)
-    return
-  }
-  webFrame.setZoomFactor(zoom)
-  const zl = webFrame.getZoomLevel()
-  webFrame.setLayoutZoomLevelLimits(zl, zl)
 }
 
 window.align = function() {
@@ -114,7 +99,6 @@ window.align = function() {
   } else if (location.pathname.includes('kcs')) {
     document.body.appendChild(alignCSS)
   }
-  handleZoom()
 }
 
 window.unalign = () => {
