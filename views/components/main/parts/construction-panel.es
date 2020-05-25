@@ -28,7 +28,7 @@ const EmptyDock = ({ state }) =>
     </EmptyDockWrapper>
   ) : null
 
-const getPanelDimension = width => {
+const getPanelDimension = (width) => {
   if (width > 480) {
     return 4
   }
@@ -54,7 +54,7 @@ const getTagIntent = ({ isLSC }, timeRemaining) =>
 const isActive = () => getStore('ui.activeMainTab') === 'main-view'
 
 @withNamespaces(['main'])
-@connect(state => ({
+@connect((state) => ({
   constructions: state.info.constructions,
   $ships: state.const.$ships,
   canNotify: state.misc.canNotify,
@@ -65,7 +65,7 @@ export class ConstructionPanel extends Component {
     icon: join(window.ROOT, 'assets', 'img', 'operation', 'build.png'),
     type: 'construction',
     title: i18next.t('main:Construction'),
-    message: names => `${joinString(names, ', ')} ${i18next.t('main:built')}`,
+    message: (names) => `${joinString(names, ', ')} ${i18next.t('main:built')}`,
   }
 
   width = 250
@@ -97,7 +97,7 @@ export class ConstructionPanel extends Component {
     this.updateDimension()
   }
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps) => {
     if (prevProps.enableAvatar !== this.props.enableAvatar) {
       this.updateDimension()
     }
@@ -110,7 +110,7 @@ export class ConstructionPanel extends Component {
       <ResizeSensor onResize={this.handleResize}>
         <DockPanelCardWrapper elevation={editable ? 2 : 0} interactive={editable}>
           <Panel>
-            {range(4).map(i => {
+            {range(4).map((i) => {
               const dock = get(constructions, i, { api_state: -1, api_complete_time: 0 })
               const isInUse = dock.api_state > 0
               const isLSC = isInUse && dock.api_item1 >= 1000
